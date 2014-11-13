@@ -39,6 +39,8 @@ public class FileManager implements FolderManagerIF {
         if(content != null){
             for(File c: content){
                 boolean expandable = false;
+                
+                  /*undo comment if files should be visible*/
 //                if(c.isFile()){
 //                   f.addComponent(new FileElement(c)); 
 //                }
@@ -51,7 +53,9 @@ public class FileManager implements FolderManagerIF {
                         }
 //                        expandable = true;
                     }
-                    f.addComponent(new Folder(c,expandable));
+                    if(!c.getName().startsWith(".")){  //filter hidden files
+                        f.addComponent(new Folder(c,expandable));
+                    }                    
                 }
             }
         }

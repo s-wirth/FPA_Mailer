@@ -90,6 +90,9 @@ public class FXMLMainViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        /*add Listener to TreeView to get info about selected TreeItem only once*/
+        treeView.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends TreeItem<Component>> observable, 
+                TreeItem<Component> oldValue, TreeItem<Component> newValue) -> showEmail(newValue));
         configureTree(FILE_MANAGER);
         configureMenu();
     } 
@@ -117,16 +120,14 @@ public class FXMLMainViewController implements Initializable {
         fileManager.loadContent(fileManager.getTopFolder());
         TreeItem<Component> topFolder = new TreeItem<>(fileManager.getTopFolder(),new ImageView(FOLDER_OPEN_ICON));
         showFolder(topFolder);
-        topFolder.setExpanded(true);
-        treeView.setRoot(topFolder);
+        if(!topFolder.getChildren().isEmpty()){
+            topFolder.setExpanded(true);
+        }
         
         /*add EventHandler to root - tranfered to all TreeItems*/
         topFolder.addEventHandler(TreeItem.branchExpandedEvent(), (TreeModificationEvent<Component> e) -> expandEvent(e, fileManager));
         topFolder.addEventHandler(TreeItem.branchCollapsedEvent(), (TreeModificationEvent<Component> e) -> collapseEvent(e));
-        
-        /*add Listener to TreeView to get info about selected TreeItem*/
-        treeView.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends TreeItem<Component>> observable, 
-                TreeItem<Component> oldValue, TreeItem<Component> newValue) -> showEmail(newValue));
+        treeView.setRoot(topFolder);
     }
     
     /**
@@ -138,6 +139,9 @@ public class FXMLMainViewController implements Initializable {
      * @param item selected TreeItem
      */
     private void showEmail(TreeItem<Component> item){
+        if(item == null){
+            return;
+        }
         System.out.println("Selected directory: " + item.getValue().getPath());
         
         Folder folder = (Folder) item.getValue();
@@ -204,6 +208,11 @@ public class FXMLMainViewController implements Initializable {
         }
         FolderManagerIF fileManager = new FileManager(selectedDirectory);
         configureTree(fileManager);
+        
+        /*if case to avoid double entries, remove directory from history to add it to the end of the list*/
+        if(INPUT.contains(selectedDirectory)){
+            INPUT.remove(selectedDirectory);   
+        }
         INPUT.add(selectedDirectory);
     }
     
