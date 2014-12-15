@@ -5,8 +5,6 @@
  */
 package de.bht.fpa.mail.s791831.controller;
 
-import de.bht.fpa.mail.s791831.model.appLogic.FileManager;
-import de.bht.fpa.mail.s791831.model.appLogic.FolderManagerIF;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -41,9 +39,9 @@ public class FXMLDirectoryHistoryController implements Initializable {
      * @param contr controller from main view
      * @param oList ObservableList contains all previous chosen directories
      */
-    FXMLDirectoryHistoryController(FXMLMainViewController contr, ObservableList oList) {
+    FXMLDirectoryHistoryController(FXMLMainViewController contr) {
         docController = contr;
-        INPUT = oList;
+        INPUT = contr.getINPUT();
     }
     /**
      * Initializes the controller class.
@@ -84,8 +82,8 @@ public class FXMLDirectoryHistoryController implements Initializable {
      */
     private void pressOK() {
         File selectedFile = list.getSelectionModel().getSelectedItem();
-        FolderManagerIF fm = new FileManager(selectedFile);
-        docController.configureTree(fm);
+        docController.getAppLogic().setTopFolder(selectedFile);
+        docController.configureTree();
         Stage window = (Stage) okButton.getScene().getWindow();
         window.close();
     }

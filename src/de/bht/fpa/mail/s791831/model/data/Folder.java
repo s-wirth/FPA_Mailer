@@ -14,7 +14,7 @@ public class Folder extends Component {
     private final boolean expandable;
     private final ArrayList<Component> content;
     private final ArrayList<Email> emails;
-
+    
     /**
      * Initializes new Folder.
      * @param path directory path for Folder
@@ -56,5 +56,13 @@ public class Folder extends Component {
      */
     public void addEmail(Email message) {
         emails.add(message);
+    }
+    
+    @Override
+    public String toString(){
+        if(emails.size() == 0){
+            return this.getName();
+        }
+        return this.getName() + " (" + emails.size() + ")";
     }
  }

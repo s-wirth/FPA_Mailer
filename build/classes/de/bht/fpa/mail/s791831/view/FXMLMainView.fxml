@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
@@ -12,12 +13,13 @@
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
    <children>
-      <MenuBar>
+      <MenuBar fx:id="menuBar">
         <menus>
           <Menu mnemonicParsing="false" text="Account" />
           <Menu fx:id="menuFile" mnemonicParsing="false" text="File">
             <items>
               <MenuItem fx:id="fileOpen" mnemonicParsing="false" text="Open" />
+                  <MenuItem fx:id="fileSave" mnemonicParsing="false" text="Save" />
                   <MenuItem fx:id="fileHistory" mnemonicParsing="false" text="History" />
             </items>
           </Menu>
@@ -32,8 +34,76 @@
             </AnchorPane>
             <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
               <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Search:" AnchorPane.leftAnchor="11.0" AnchorPane.topAnchor="18.0" />
+                        <TextField fx:id="searchBar" layoutX="60.0" layoutY="14.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="25.0" prefWidth="559.0" AnchorPane.topAnchor="14.0" />
+                        <Label fx:id="countLabel" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="18.0" />
+                        <TableView fx:id="tableView" layoutY="39.0" prefHeight="250.0" prefWidth="678.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
+                          <columns>
+                            <TableColumn fx:id="importance" prefWidth="100.0" text="Importance" />
+                            <TableColumn fx:id="received" prefWidth="170.0" text="Received" />
+                              <TableColumn fx:id="read" prefWidth="50.0" text="Read" />
+                              <TableColumn fx:id="sender" prefWidth="100.0" text="Sender" />
+                              <TableColumn fx:id="recipients" prefWidth="100.0" text="Recipients" />
+                              <TableColumn fx:id="subject" prefWidth="137.0" text="Subject" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane>
+                     <children>
+                        <VBox layoutX="14.0" layoutY="9.0" prefHeight="128.0" prefWidth="74.0">
+                           <children>
+                              <Label layoutX="10.0" layoutY="10.0" text="Sender:">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Label layoutX="10.0" layoutY="10.0" text="Subject:">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Label layoutX="10.0" layoutY="10.0" text="Received:">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Label layoutX="10.0" layoutY="26.0" text="Receiver:">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox layoutX="88.0" layoutY="9.0" prefHeight="121.0" prefWidth="577.0">
+                           <children>
+                              <Text fx:id="senderText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="559.0">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <Text fx:id="subjectText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="559.0">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <Text fx:id="receivedText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="559.0">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <Text fx:id="receiverText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="559.0">
+                                 <VBox.margin>
+                                    <Insets bottom="7.0" top="7.0" />
+                                 </VBox.margin>
+                              </Text>
+                           </children>
+                        </VBox>
+                        <TextArea fx:id="emailText" layoutX="10.0" layoutY="140.0" prefHeight="121.0" prefWidth="656.0" />
+                     </children>
+                </AnchorPane>
               </items>
             </SplitPane>
         </items>
