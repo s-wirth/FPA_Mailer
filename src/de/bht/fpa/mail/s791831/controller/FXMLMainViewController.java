@@ -13,14 +13,17 @@ import de.bht.fpa.mail.s791831.model.data.Folder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,6 +39,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -46,6 +50,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 
 /**
  * This class is the controller of the FPA-Mailer. Used FXML document:
@@ -74,7 +79,7 @@ public class FXMLMainViewController implements Initializable {
     @FXML
     private TableColumn<Email, String> importance;
     @FXML
-    private TableColumn<Email, String> received;
+    private TableColumn<Email, Date> received;
     @FXML
     private TableColumn<Email, String> read;
     @FXML
@@ -99,16 +104,21 @@ public class FXMLMainViewController implements Initializable {
      */
     private boolean showEmailListener = false;
 
-    private static final ApplicationLogicIF APP_LOGIC = new FacadeApplicationLogic();
+    private final ApplicationLogicIF APP_LOGIC;
 
     /**
      * used icons for folder/files
      */
-    private final Image FOLDER_ICON = new Image(getClass().getResourceAsStream("blue-folder.png"));
-    private final Image FOLDER_OPEN_ICON = new Image(getClass().getResourceAsStream("blue-folder-open.png"));
+    private final Image FOLDER_ICON;
+    private final Image FOLDER_OPEN_ICON;
 //    private final Image DOCUMENT_ICON = new Image(getClass().getResourceAsStream("blue-document.png"));
 
     
+    public FXMLMainViewController() {
+        APP_LOGIC = new FacadeApplicationLogic();
+        FOLDER_ICON = new Image(getClass().getResourceAsStream("blue-folder.png"));
+        FOLDER_OPEN_ICON = new Image(getClass().getResourceAsStream("blue-folder-open.png"));
+    }
 
     /**
      * Initializes TreeView and Menu.
@@ -163,12 +173,51 @@ public class FXMLMainViewController implements Initializable {
      * Calls showEmailContent.
      */
     private void configureTableView(){
+        importance.setCellValueFactory(new PropertyValueFactory<>("importance"));
+        received.setCellValueFactory(new PropertyValueFactory<>("received"));
+        
+        /* default column sort by date */
+        //received.setComparator((date1, date2) -> date1.compareTo(date2));
+        received.setComparator(new Comparator(){
+
+            @Override
+            public int compare(Object o1, Object o2) {
+                if(o1 instanceof Date && o2 instanceof Date){
+                    Date one = (Date) o1;
+                    Date two = (Date) o2;
+                    return one.compareTo(two); 
+                }else{
+                    String s1 = (String) o1;
+                    String s2 = (String) o2;
+                    return s1.compareTo(s2);
+                }
+            }
+        });
+        
+        read.setCellValueFactory(new PropertyValueFactory<>("read"));
+        sender.setCellValueFactory(new PropertyValueFactory<>("sender"));
+        recipients.setCellValueFactory(new PropertyValueFactory<>("receiverTo"));
+        subject.setCellValueFactory(new PropertyValueFactory<>("subject"));
+        
+        tableView.getSortOrder().add(received);
         tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
                                                                                 showEmailContent((Email)newValue));
     }
     
     private void configureSearchField(){
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> searchEmails(newValue));
+    }
+    
+    private int compare(Object o1, Object o2){
+        if (o1 instanceof Date && o2 instanceof Date) {
+            Date one = (Date) o1;
+            Date two = (Date) o2;
+            return one.compareTo(two);
+        } else {
+            String s1 = (String) o1;
+            String s2 = (String) o2;
+            return s1.compareTo(s2);
+        }
     }
     
     private void searchEmails(String newValue) {
@@ -239,13 +288,6 @@ public class FXMLMainViewController implements Initializable {
      * sender, recipients, subject)
      */
     private void fillTableView(ObservableList content) {
-        importance.setCellValueFactory(new PropertyValueFactory<>("importance"));
-        received.setCellValueFactory(new PropertyValueFactory<>("received"));
-        read.setCellValueFactory(new PropertyValueFactory<>("read"));
-        sender.setCellValueFactory(new PropertyValueFactory<>("sender"));
-        recipients.setCellValueFactory(new PropertyValueFactory<>("receiverTo"));
-        subject.setCellValueFactory(new PropertyValueFactory<>("subject"));
-        
         tableView.setItems(content);
         searchBar.clear();
         countLabel.setText("");
