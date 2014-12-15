@@ -19,6 +19,11 @@ import javax.xml.bind.JAXB;
  */
 public class MenuLogic {
     
+    /**
+     * filter all emails in list
+     * @param pattern to search for
+     * @return filtered list
+     */
     public ObservableList filterEmails(String pattern) {
         ObservableList filtered = FXCollections.observableArrayList();
         for(Email e: FacadeApplicationLogic.EMAIL_CONTENT){
@@ -29,6 +34,12 @@ public class MenuLogic {
         return filtered;
     }
     
+    /**
+     * looks if pattern is in email
+     * @param email to be searched
+     * @param pattern to search for
+     * @return boolean if pattern is in email or not
+     */
     private boolean matchesFilter(Email email, String pattern){
         // If filter text is empty, display all emails.
         if (pattern == null || pattern.isEmpty()) {
@@ -54,6 +65,10 @@ public class MenuLogic {
         return false; // Does not match.
     }
     
+    /**
+     * saves xml files in given file
+     * @param file where emails should be saved
+     */
     public void saveEmails(File file) {
 
         String path = file.getAbsolutePath();

@@ -79,7 +79,7 @@ public class FXMLMainViewController implements Initializable {
     @FXML
     private TableColumn<Email, String> importance;
     @FXML
-    private TableColumn<Email, Date> received;
+    private TableColumn<Email, String> received;
     @FXML
     private TableColumn<Email, String> read;
     @FXML
@@ -104,6 +104,9 @@ public class FXMLMainViewController implements Initializable {
      */
     private boolean showEmailListener = false;
 
+    /**
+     * ApplicationLogic
+     */
     private final ApplicationLogicIF APP_LOGIC;
 
     /**
@@ -113,7 +116,9 @@ public class FXMLMainViewController implements Initializable {
     private final Image FOLDER_OPEN_ICON;
 //    private final Image DOCUMENT_ICON = new Image(getClass().getResourceAsStream("blue-document.png"));
 
-    
+    /**
+     * Controller
+     */
     public FXMLMainViewController() {
         APP_LOGIC = new FacadeApplicationLogic();
         FOLDER_ICON = new Image(getClass().getResourceAsStream("blue-folder.png"));
@@ -177,22 +182,7 @@ public class FXMLMainViewController implements Initializable {
         received.setCellValueFactory(new PropertyValueFactory<>("received"));
         
         /* default column sort by date */
-        //received.setComparator((date1, date2) -> date1.compareTo(date2));
-        received.setComparator(new Comparator(){
-
-            @Override
-            public int compare(Object o1, Object o2) {
-                if(o1 instanceof Date && o2 instanceof Date){
-                    Date one = (Date) o1;
-                    Date two = (Date) o2;
-                    return one.compareTo(two); 
-                }else{
-                    String s1 = (String) o1;
-                    String s2 = (String) o2;
-                    return s1.compareTo(s2);
-                }
-            }
-        });
+        received.setComparator((date1, date2) -> date1.compareTo(date2));
         
         read.setCellValueFactory(new PropertyValueFactory<>("read"));
         sender.setCellValueFactory(new PropertyValueFactory<>("sender"));
@@ -204,22 +194,17 @@ public class FXMLMainViewController implements Initializable {
                                                                                 showEmailContent((Email)newValue));
     }
     
+    /**
+     * configures search field, adds listener
+     */
     private void configureSearchField(){
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> searchEmails(newValue));
     }
     
-    private int compare(Object o1, Object o2){
-        if (o1 instanceof Date && o2 instanceof Date) {
-            Date one = (Date) o1;
-            Date two = (Date) o2;
-            return one.compareTo(two);
-        } else {
-            String s1 = (String) o1;
-            String s2 = (String) o2;
-            return s1.compareTo(s2);
-        }
-    }
-    
+    /**
+     * filters all emails in tableView
+     * @param newValue the filter
+     */
     private void searchEmails(String newValue) {
         List<Email> list = APP_LOGIC.search(newValue);
         ObservableList fill = FXCollections.observableArrayList();
@@ -353,6 +338,9 @@ public class FXMLMainViewController implements Initializable {
         }
     }
 
+    /**
+     * directoryChooserEvent
+     */
     private void saveDirectoryChooserEvent() {
         Stage dcsStage = new Stage();
         /* Title the Stage */
