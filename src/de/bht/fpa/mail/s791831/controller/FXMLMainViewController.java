@@ -13,15 +13,15 @@ import de.bht.fpa.mail.s791831.model.data.Folder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -39,7 +39,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -50,7 +49,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 
 /**
  * This class is the controller of the FPA-Mailer. Used FXML document:
@@ -182,7 +180,7 @@ public class FXMLMainViewController implements Initializable {
         received.setCellValueFactory(new PropertyValueFactory<>("received"));
         
         /* default column sort by date */
-        received.setComparator((date1, date2) -> date1.compareTo(date2));
+        received.setComparator((date1,date2) -> compare(date1,date2));
         
         read.setCellValueFactory(new PropertyValueFactory<>("read"));
         sender.setCellValueFactory(new PropertyValueFactory<>("sender"));
@@ -428,5 +426,23 @@ public class FXMLMainViewController implements Initializable {
      */
     public ApplicationLogicIF getAppLogic() {
         return APP_LOGIC;
+    }
+
+    /**
+     * converts strings from received column to dates, to be sorted by date
+     * @param s1 string1 to be compared as date
+     * @param s2 string2 to be compared as date
+     * @return sorted dates
+     */
+    private int compare(String s1, String s2) {
+        DateFormat FORMAT = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT, Locale.GERMANY);
+        Date date1 = null;
+        Date date2 = null;
+        try {
+            date1 = FORMAT.parse(s1);
+            date2 = FORMAT.parse(s2);
+        } catch (ParseException ex2) {
+        }
+        return date1.compareTo(date2);
     }
 }
