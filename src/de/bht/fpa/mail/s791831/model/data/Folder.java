@@ -2,23 +2,33 @@ package de.bht.fpa.mail.s791831.model.data;
 
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Entity;
 
 /**
  * 
  * @author Simone Strippgen
  */
-public class Folder extends Component {
 
-    private final boolean expandable;
-    private final ArrayList<Component> content;
-    private final ArrayList<Email> emails;
+@Entity
+public class Folder extends Component implements Serializable {
+    
+    private boolean expandable;
+    private transient final ArrayList<Component> content;
+    private transient final ArrayList<Email> emails;
+
+    public Folder() {
+        this.expandable = true;
+        content = new ArrayList<>();
+        emails = new ArrayList<Email>();
+    }
     
     /**
      * Initializes new Folder.
      * @param path directory path for Folder
-     * @param expandable desides whether this Folder is expandable
+     * @param expandable decides whether this Folder is expandable
      */
     public Folder(File path, boolean expandable) {
         super(path);
@@ -59,7 +69,7 @@ public class Folder extends Component {
     }
     
     @Override
-    public String toString(){
+    public String toString(){ // (0) hinter folder
         if(emails.size() == 0){
             return this.getName();
         }

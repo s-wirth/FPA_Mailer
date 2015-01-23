@@ -5,7 +5,10 @@
  */
 package de.bht.fpa.mail.s791831.model.appLogic;
 
+import de.bht.fpa.mail.s791831.model.data.Email;
 import de.bht.fpa.mail.s791831.model.data.Folder;
+import java.io.File;
+import javafx.collections.ObservableList;
 
 /**
  * This is the interface for classes that manage
@@ -22,4 +25,18 @@ public interface EmailManagerIF {
      */
     void loadContent(Folder f); 
     
+    /**
+     * filter all emails in list
+     * @param emailList to search
+     * @param pattern to search for
+     * @return filtered list
+     */
+    ObservableList filterEmails(ObservableList<Email> emailList, String pattern);
+    
+    /**
+     * saves xml files in given file
+     * @param emailList to save
+     * @param file where emails should be saved
+     */
+    void saveEmails(ObservableList<Email> emailList, File file);
 }

@@ -1,12 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.bht.fpa.mail.s791831.controller;
 
 import de.bht.fpa.mail.s791831.model.appLogic.ApplicationLogicIF;
 import de.bht.fpa.mail.s791831.model.appLogic.FacadeApplicationLogic;
+import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapConnectionHelper;
 import de.bht.fpa.mail.s791831.model.data.Component;
 import de.bht.fpa.mail.s791831.model.data.Email;
 import de.bht.fpa.mail.s791831.model.data.Folder;
@@ -15,7 +12,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,6 +46,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.mail.Store;
 
 /**
  * This class is the controller of the FPA-Mailer. Used FXML document:
@@ -68,6 +66,12 @@ public class FXMLMainViewController implements Initializable {
     private MenuItem fileSave;
     @FXML
     private MenuItem fileHistory;
+    @FXML
+    public Menu accountOpen;
+    @FXML
+    private Menu accountEdit;
+    @FXML
+    private MenuItem accountNew;
     @FXML
     private TextField searchBar;
     @FXML
@@ -113,7 +117,12 @@ public class FXMLMainViewController implements Initializable {
     private final Image FOLDER_ICON;
     private final Image FOLDER_OPEN_ICON;
 //    private final Image DOCUMENT_ICON = new Image(getClass().getResourceAsStream("blue-document.png"));
-
+   
+    /**
+     * saves all E-mails in chosen directory
+     */
+    private static final ObservableList<Email> EMAIL_CONTENT = FXCollections.observableArrayList();
+    
     /**
      * Controller
      */
@@ -132,11 +141,19 @@ public class FXMLMainViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configureTree();
+        configureAccounts();
         configureMenu();
         configureTableView();
         configureSearchField();
     }
 
+    public void configureAccounts(){
+        for (String name : APP_LOGIC.getAllAccounts()){
+            accountOpen.getItems().add(new MenuItem(name));
+            accountEdit.getItems().add(new MenuItem(name));
+        }
+    }
+    
     /**
      * Creates a TreeView with root user.home. Adds events for expanding,
      * collapsing. Adds a Listener to select items.
@@ -163,8 +180,14 @@ public class FXMLMainViewController implements Initializable {
     /**
      * Adds an event to all MenuItems.
      */
-    private void configureMenu() {
+    public void configureMenu() {
         for (Menu m : menuBar.getMenus()) {
+            for (MenuItem i : accountOpen.getItems()) {
+                i.setOnAction((e) -> menuEvent(e));
+            }
+            for (MenuItem i : accountEdit.getItems()) {
+                i.setOnAction((e) -> menuEvent(e));
+            }
             for (MenuItem i : m.getItems()) {
                 i.setOnAction((e) -> menuEvent(e));
             }
@@ -204,7 +227,7 @@ public class FXMLMainViewController implements Initializable {
      * @param newValue the filter
      */
     private void searchEmails(String newValue) {
-        List<Email> list = APP_LOGIC.search(newValue);
+        List<Email> list = APP_LOGIC.search(EMAIL_CONTENT, newValue);
         ObservableList fill = FXCollections.observableArrayList();
         for(Email e: list){
             fill.add(e);
@@ -246,7 +269,7 @@ public class FXMLMainViewController implements Initializable {
             return;
         }
         Folder folder = (Folder) item.getValue();
-        FacadeApplicationLogic.EMAIL_CONTENT.clear();
+        EMAIL_CONTENT.clear();
         APP_LOGIC.loadEmails(folder);
         
         /*Set new Graphic to item to show number of emails instantly*/
@@ -260,10 +283,10 @@ public class FXMLMainViewController implements Initializable {
         System.out.println("Number of emails: " + folder.getEmails().size());
         for (Email email : folder.getEmails()) {
             System.out.println(email.toString());
-            FacadeApplicationLogic.EMAIL_CONTENT.add(email);
+            EMAIL_CONTENT.add(email);
         }
 
-        fillTableView(FacadeApplicationLogic.EMAIL_CONTENT);
+        fillTableView(EMAIL_CONTENT);
     }
 
     /**
@@ -285,12 +308,26 @@ public class FXMLMainViewController implements Initializable {
         if (e.getSource() == fileOpen) {
             directoryChooserEvent();
         }
-        if (e.getSource() == fileHistory) {
+        else if (e.getSource() == fileHistory) {
             historyEvent();
         }
-        if (e.getSource() == fileSave){
+        else if (e.getSource() == fileSave){
             saveDirectoryChooserEvent();
         }
+        else if(e.getSource() == accountNew){
+            newAccountEvent();
+        }else{
+            for(MenuItem item: accountEdit.getItems()){
+                if(e.getSource() == item){
+                    editAccountEvent(item.getText());
+                }
+            }
+            for(MenuItem item: accountOpen.getItems()){
+                if(e.getSource() == item){
+                    openAccountEvent(item);
+                }
+            }
+        }    
     }
 
     /**
@@ -350,7 +387,30 @@ public class FXMLMainViewController implements Initializable {
         /* get file the user is trying to save, empty file with path and name */
         File selectedDirectory = chooser.showSaveDialog(dcsStage);
         if (selectedDirectory != null) {
-            APP_LOGIC.saveEmails(selectedDirectory);
+            APP_LOGIC.saveEmails(EMAIL_CONTENT, selectedDirectory);
+        }
+    }
+    
+    /**
+     * creates a new Account
+     */
+    private void newAccountEvent() {
+        Stage newAccountStage = new Stage(StageStyle.UTILITY);
+        newAccountStage.setTitle("New Account");
+        URL location = getClass().getResource("/de/bht/fpa/mail/s791831/view/FXMLNewAccount.fxml");
+
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(location);
+        fxmlLoader.setController(new FXMLNewAccountController(this));
+
+        /*load FXMLNewAccount view an show in new Stage*/
+        try {
+            Pane myPane = (Pane) fxmlLoader.load();
+            Scene myScene = new Scene(myPane);
+            newAccountStage.setScene(myScene);
+            newAccountStage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLMainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -444,5 +504,35 @@ public class FXMLMainViewController implements Initializable {
         } catch (ParseException ex2) {
         }
         return date1.compareTo(date2);
+    }
+
+    private void openAccountEvent(MenuItem item) {
+        String name = item.getText();
+        APP_LOGIC.setTopFolder(new File(APP_LOGIC.getAccount(name).getTop().getPath()));
+        Store connect = IMapConnectionHelper.connect(APP_LOGIC.getAccount(name));
+        configureTree();
+    }
+
+    private void editAccountEvent(String name) {
+        Stage editAccountStage = new Stage(StageStyle.UTILITY);
+        editAccountStage.setTitle("Edit Account");
+  
+        URL location = getClass().getResource("/de/bht/fpa/mail/s791831/view/FXMLNewAccount.fxml");
+
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(location);
+        FXMLNewAccountController controller = new FXMLNewAccountController(this);
+        fxmlLoader.setController(controller);
+
+        /*load FXMLNewAccount view an show in new Stage*/
+        try {
+            Pane myPane = (Pane) fxmlLoader.load();
+            Scene myScene = new Scene(myPane);
+            editAccountStage.setScene(myScene);
+            controller.setEdit(APP_LOGIC.getAccount(name));
+            editAccountStage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLMainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

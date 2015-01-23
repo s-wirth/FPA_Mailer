@@ -1,19 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.bht.fpa.mail.s791831.model.appLogic;
 
+import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManager;
+import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManagerIF;
+import de.bht.fpa.mail.s791831.model.data.Account;
 import de.bht.fpa.mail.s791831.model.data.Email;
 import de.bht.fpa.mail.s791831.model.data.Folder;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 
 /**
  *
@@ -21,14 +18,20 @@ import javafx.collections.transformation.SortedList;
  */
 public class FacadeApplicationLogic implements ApplicationLogicIF{
     
+    /**
+     * file manager
+     */
     private FolderManagerIF fileManager;
-    private final EmailManagerIF emailManager;
-    private final MenuLogic menuLogic;
     
+    /**
+     * email manager
+     */
+    private final EmailManagerIF emailManager; 
     
-    public ObservableList<Email> filteredEmailContent = FXCollections.observableArrayList();
-
-    
+    /**
+     * account manager
+     */
+    private final AccountManagerIF accountManager;
     
     /**
      * home directory
@@ -39,17 +42,14 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
      * saves all directories chosen in history
      */
     public static final ObservableList INPUT = FXCollections.observableArrayList();
-    
+
     /**
-     * saves all E-mails in chosen directory
+     * Constructor
      */
-    public static final ObservableList<Email> EMAIL_CONTENT = FXCollections.observableArrayList();
-    
     public FacadeApplicationLogic() {
         fileManager= new FileManager(HOME);
         emailManager = new XmlEmailManager();
-        menuLogic = new MenuLogic();
-        filteredEmailContent.addAll(EMAIL_CONTENT);
+        accountManager = new AccountManager();
     }
  
     @Override
@@ -63,9 +63,8 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
     }
 
     @Override
-    public List<Email> search(String pattern) {
-        filteredEmailContent = menuLogic.filterEmails(pattern);
-        return filteredEmailContent;
+    public List<Email> search(ObservableList<Email> emailList, String pattern) {
+        return emailManager.filterEmails(emailList, pattern);
     }
 
     @Override
@@ -88,12 +87,43 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
 
     // Save menuItem
     @Override
-    public void saveEmails(File file) {
-        menuLogic.saveEmails(file);
+    public void saveEmails(ObservableList<Email> emailList, File file) {
+        emailManager.saveEmails(emailList, file);
     }
     
     @Override
     public void setTopFolder(File file){
         fileManager = new FileManager(file);
+    }
+
+    @Override
+    public void openAccount(String name) {
+        Account acc = getAccount(name);
+        File file = new File (acc.getTop().getPath());
+        setTopFolder(file);
+    }
+
+    @Override
+    public List<String> getAllAccounts() {
+        List<String> accountNames = new ArrayList<>();
+        for (Account acc: accountManager.getAllAccounts()){
+            accountNames.add(acc.getName());
+        }
+        return accountNames;
+    }
+
+    @Override
+    public Account getAccount(String name) {
+        return accountManager.getAccount(name);
+    }
+
+    @Override
+    public boolean saveAccount(Account account) {
+        return accountManager.saveAccount(account);
+    }
+
+    @Override
+    public void updateAccount(Account account) {
+        accountManager.updateAccount(account);
     }
 }
