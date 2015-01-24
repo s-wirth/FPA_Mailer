@@ -3,6 +3,7 @@ package de.bht.fpa.mail.s791831.model.appLogic;
 
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManager;
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManagerIF;
+import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapFolderManager;
 import de.bht.fpa.mail.s791831.model.data.Account;
 import de.bht.fpa.mail.s791831.model.data.Email;
 import de.bht.fpa.mail.s791831.model.data.Folder;
@@ -21,7 +22,7 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
     /**
      * file manager
      */
-    private FolderManagerIF fileManager;
+    private FolderManagerIF imapFolderManager;
     
     /**
      * email manager
@@ -47,19 +48,19 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
      * Constructor
      */
     public FacadeApplicationLogic() {
-        fileManager= new FileManager(HOME);
+        imapFolderManager = new IMapFolderManager(null);
         emailManager = new XmlEmailManager();
         accountManager = new AccountManager();
     }
  
     @Override
     public Folder getTopFolder() {
-        return fileManager.getTopFolder(); 
+        return imapFolderManager.getTopFolder(); 
     }
 
     @Override
     public void loadContent(Folder folder) { 
-        fileManager.loadContent(folder);
+        imapFolderManager.loadContent(folder);
     }
 
     @Override
@@ -76,13 +77,13 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
     // directoryChooser Event
     @Override
     public void changeDirectory(File file) {
-        fileManager = new FileManager(file);
-        
-        /*if case to avoid double entries, remove directory from history to add it to the end of the list*/
-        if (INPUT.contains(file)) {
-            INPUT.remove(file);
-        }
-        INPUT.add(file);
+//        imapFolderManager = new FileManager(file);
+//        
+//        /*if case to avoid double entries, remove directory from history to add it to the end of the list*/
+//        if (INPUT.contains(file)) {
+//            INPUT.remove(file);
+//        }
+//        INPUT.add(file);
     }
 
     // Save menuItem
@@ -91,16 +92,17 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
         emailManager.saveEmails(emailList, file);
     }
     
-    @Override
+//    @Override
     public void setTopFolder(File file){
-        fileManager = new FileManager(file);
+//        imapFolderManager = new IMapFolderManager(file);
     }
 
     @Override
     public void openAccount(String name) {
-        Account acc = getAccount(name);
-        File file = new File (acc.getTop().getPath());
-        setTopFolder(file);
+//        Account acc = getAccount(name);
+//        IMapFolderManager imf = new IMapFolderManager(acc);
+////        File file = new File (acc.getTop().getPath());
+////        setTopFolder(file);
     }
 
     @Override
