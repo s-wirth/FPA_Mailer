@@ -38,9 +38,6 @@ public class Account implements Serializable {
   @OneToOne (cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
   private Folder top = null;
   
-//  @OneToOne
-//  private Folder top = null;
-  
   public Account() { 
       this.top = new Folder(new File(""), true);
   }

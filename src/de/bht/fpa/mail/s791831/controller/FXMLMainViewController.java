@@ -509,7 +509,7 @@ public class FXMLMainViewController implements Initializable {
     private void openAccountEvent(MenuItem item) {
         String name = item.getText();
         APP_LOGIC.setTopFolder(new File(APP_LOGIC.getAccount(name).getTop().getPath()));
-        Store connect = IMapConnectionHelper.connect(APP_LOGIC.getAccount(name));
+        Store store = IMapConnectionHelper.connect(APP_LOGIC.getAccount(name));
         configureTree();
     }
 

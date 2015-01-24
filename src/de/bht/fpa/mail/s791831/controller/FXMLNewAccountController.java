@@ -85,10 +85,10 @@ public class FXMLNewAccountController implements Initializable{
         }else{
             Account acc = new Account(nameText.getText(), hostText.getText(), usernameText.getText(), passwordText.getText());
             
-            File accountDirectory = new File(new File("TestData"), acc.getName());
-            accountDirectory.mkdirs();
-            Folder folder = new Folder(accountDirectory, true);
-            acc.setTop(folder);
+//            File accountDirectory = new File(new File("TestData"), acc.getName());
+//            accountDirectory.mkdirs();
+//            Folder folder = new Folder(accountDirectory, true);
+//            acc.setTop(folder);
             
             if(docController.getAppLogic().saveAccount(acc)){
                 docController.accountOpen.getItems().add(new MenuItem(acc.getName()));

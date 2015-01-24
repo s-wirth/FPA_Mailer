@@ -23,7 +23,6 @@ public class IMapConnectionHelper {
         
     }
     
-    
     /**
      * Connects to an IMAP email server using the information in the given account.
      * @param acc the account which contains the connection information
