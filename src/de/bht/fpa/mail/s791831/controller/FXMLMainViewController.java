@@ -159,18 +159,21 @@ public class FXMLMainViewController implements Initializable {
      * collapsing. Adds a Listener to select items.
      */
     public void configureTree(){
-
-        APP_LOGIC.loadContent(APP_LOGIC.getTopFolder());
-        TreeItem<Component> topFolder = new TreeItem<>(APP_LOGIC.getTopFolder(), new ImageView(FOLDER_OPEN_ICON));
-        showFolder(topFolder);
-        if (!topFolder.getChildren().isEmpty()) {
-            topFolder.setExpanded(true);
+        Folder topFolder = APP_LOGIC.getTopFolder();
+        if(topFolder == null){
+            return;
+        }
+        APP_LOGIC.loadContent(topFolder);
+        TreeItem<Component> topTreeItem = new TreeItem<>(topFolder, new ImageView(FOLDER_OPEN_ICON));
+        showFolder(topTreeItem);
+        if (!topTreeItem.getChildren().isEmpty()) {
+            topTreeItem.setExpanded(true);
         }
 
         /*add EventHandler to root - transfered to all TreeItems*/
-        topFolder.addEventHandler(TreeItem.branchExpandedEvent(), (TreeModificationEvent<Component> e) -> expandEvent(e));
-        topFolder.addEventHandler(TreeItem.branchCollapsedEvent(), (TreeModificationEvent<Component> e) -> collapseEvent(e));
-        treeView.setRoot(topFolder);
+        topTreeItem.addEventHandler(TreeItem.branchExpandedEvent(), (TreeModificationEvent<Component> e) -> expandEvent(e));
+        topTreeItem.addEventHandler(TreeItem.branchCollapsedEvent(), (TreeModificationEvent<Component> e) -> collapseEvent(e));
+        treeView.setRoot(topTreeItem);
         if (!showEmailListener) {
             showEmailListener = true;
             treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showEmail(newValue));
@@ -507,9 +510,7 @@ public class FXMLMainViewController implements Initializable {
     }
 
     private void openAccountEvent(MenuItem item) {
-        String name = item.getText();
-        APP_LOGIC.setTopFolder(new File(APP_LOGIC.getAccount(name).getTop().getPath()));
-        Store store = IMapConnectionHelper.connect(APP_LOGIC.getAccount(name));
+        APP_LOGIC.openAccount(item.getText());
         configureTree();
     }
 

@@ -3,6 +3,7 @@ package de.bht.fpa.mail.s791831.model.appLogic;
 
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManager;
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManagerIF;
+import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapConnectionHelper;
 import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapFolderManager;
 import de.bht.fpa.mail.s791831.model.data.Account;
 import de.bht.fpa.mail.s791831.model.data.Email;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javax.mail.Store;
 
 /**
  *
@@ -43,18 +45,22 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
      * saves all directories chosen in history
      */
     public static final ObservableList INPUT = FXCollections.observableArrayList();
+    
+    private Account activeAccount;
 
     /**
      * Constructor
      */
     public FacadeApplicationLogic() {
-        imapFolderManager = new IMapFolderManager(null);
         emailManager = new XmlEmailManager();
         accountManager = new AccountManager();
     }
  
     @Override
     public Folder getTopFolder() {
+        if(imapFolderManager == null){
+            return null;
+        }
         return imapFolderManager.getTopFolder(); 
     }
 
@@ -99,10 +105,9 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
 
     @Override
     public void openAccount(String name) {
-//        Account acc = getAccount(name);
-//        IMapFolderManager imf = new IMapFolderManager(acc);
-////        File file = new File (acc.getTop().getPath());
-////        setTopFolder(file);
+        activeAccount = getAccount(name);
+        imapFolderManager = new IMapFolderManager(activeAccount);
+        
     }
 
     @Override
