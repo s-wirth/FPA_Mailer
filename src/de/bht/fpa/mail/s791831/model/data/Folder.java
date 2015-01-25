@@ -20,7 +20,7 @@ public class Folder extends Component implements Serializable {
     private transient final ArrayList<Email> emails;
 
     public Folder() {
-        this.expandable = true;
+        this.expandable = false;
         content = new ArrayList<>();
         emails = new ArrayList<Email>();
     }
@@ -50,6 +50,10 @@ public class Folder extends Component implements Serializable {
     @Override
     public List<Component> getComponents() {
         return content;
+    }
+    
+    public void setExpandable(boolean expandable){
+        this.expandable = expandable;
     }
 
     /**
