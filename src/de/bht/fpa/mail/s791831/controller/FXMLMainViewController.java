@@ -268,7 +268,7 @@ public class FXMLMainViewController implements Initializable {
      * @param item selected TreeItem
      */
     private void showEmail(TreeItem<Component> item) {
-        if (item == null) {
+        if (item == null || item.getValue() == null) {
             return;
         }
         Folder folder = (Folder) item.getValue();

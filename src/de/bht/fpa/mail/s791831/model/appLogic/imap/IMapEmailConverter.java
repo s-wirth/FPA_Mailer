@@ -1,4 +1,4 @@
-
+package de.bht.fpa.mail.s791831.model.appLogic.imap;
 
 import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapEmailManager;
 import de.bht.fpa.mail.s791831.model.data.Email;

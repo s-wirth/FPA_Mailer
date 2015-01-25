@@ -4,6 +4,7 @@ package de.bht.fpa.mail.s791831.model.appLogic;
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManager;
 import de.bht.fpa.mail.s791831.model.appLogic.account.AccountManagerIF;
 import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapConnectionHelper;
+import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapEmailManager;
 import de.bht.fpa.mail.s791831.model.appLogic.imap.IMapFolderManager;
 import de.bht.fpa.mail.s791831.model.data.Account;
 import de.bht.fpa.mail.s791831.model.data.Email;
@@ -52,7 +53,7 @@ public class FacadeApplicationLogic implements ApplicationLogicIF{
      * Constructor
      */
     public FacadeApplicationLogic() {
-        emailManager = new XmlEmailManager();
+        emailManager = new IMapEmailManager();
         accountManager = new AccountManager();
     }
  

@@ -37,6 +37,7 @@ public class IMapFolderManager implements FolderManagerIF {
         try {
             storeFolder = store.getDefaultFolder();
             IMapFolder topFolder = new IMapFolder(storeFolder);
+            topFolder.setName(account.getName());
             return topFolder;
         } catch (MessagingException ex) {
             Logger.getLogger(IMapFolderManager.class.getName()).log(Level.SEVERE, null, ex);
